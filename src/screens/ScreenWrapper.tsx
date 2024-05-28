@@ -8,6 +8,9 @@ import { theme } from '../theme'
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
 import { LinearGradient } from 'expo-linear-gradient'
 import Loading from '../components/Loading'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootStackParams } from '../../App'
 
 interface Props {
     className?: string,
@@ -17,6 +20,8 @@ interface Props {
 
 const ScreenWrapper = ({ className, children, isLoading }: Props) => {
     const [isFavourite, toggleFavourite] = useState(false)
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>()
+
     return (
         <View className='flex-1 bg-neutral-800'>
             <SafeAreaView className='absolute z-20 w-full p-2'>
@@ -24,7 +29,9 @@ const ScreenWrapper = ({ className, children, isLoading }: Props) => {
 
                 {/* back button and bookmarks */}
                 <View className='flex-row justify-between'>
-                    <TouchableOpacity className='rounded-lg p-1' style={{ backgroundColor: theme.background }}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}
+                        className='rounded-lg p-1'
+                        style={{ backgroundColor: theme.background }}>
                         <ChevronLeftIcon size={28} color={'white'} />
                     </TouchableOpacity>
 

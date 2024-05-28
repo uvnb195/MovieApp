@@ -3,22 +3,25 @@ import React from 'react'
 import Wrapper from './Wrapper'
 import Carousel from 'react-native-reanimated-carousel'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { Result } from '../api/movieListType'
+import { imageUrl } from '../api/axios'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootStackParams } from '../../App'
 
 interface Props {
-    data: number[]
+    data: Result[]
 }
 
-const Trending = (props: Props) => {
+const Trending = ({ data }: Props) => {
     const { width } = useWindowDimensions()
     return (
         <Wrapper title='Trending'>
             <View className='flex-row justify-center items-center'>
                 <Carousel
-                    data={[1, 2, 3, 4]}
+                    data={data}
                     renderItem={({ item }) =>
-                        <MovieCard title={`Card ${item}`}
-                            width={width}
-                            height={width} />}
+                        <MovieCard url={imageUrl(item.poster_path, 342)} id={item.id} />}
                     width={width}
                     height={width}
                     modeConfig={{
@@ -38,18 +41,20 @@ const Trending = (props: Props) => {
 }
 
 interface CardProps {
-    title: string,
-    width: number,
-    height: number
+    url: string,
+    id: number
 }
 
-const MovieCard = ({ title, width, height }: CardProps) => {
+const MovieCard = ({ url, id }: CardProps) => {
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>()
     return (
-        <TouchableWithoutFeedback className=''>
-            <Image source={require('../../assets/dummy/images.jpg')}
-                style={{ width: '80%', height: '100%' }}
+        <TouchableWithoutFeedback className='' onPress={() => navigation.navigate('Movie', { id })}>
+            <Image source={{ uri: url }}
+                style={{
+                    width: '75%', height: '100%',
+                    resizeMode: 'stretch'
+                }}
                 className='rounded-2xl self-center' />
-            {/* <Text>{title}</Text> */}
         </TouchableWithoutFeedback>
     )
 }

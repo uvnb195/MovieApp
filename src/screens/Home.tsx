@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { Bars3CenterLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
@@ -12,10 +12,47 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParams } from '../../App'
 import Loading from '../components/Loading'
+import { fetchTopratedMovie, fetchTrendingMovie, fetchUpcomingMovie } from '../api/axios'
+import { Result, MovieListResponseType } from '../api/movieListType'
 
 const Home = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [trending, setTrending] = useState<Result[]>([])
+  const [upcoming, setUpcoming] = useState<Result[]>([])
+  const [toprated, setToprated] = useState<Result[]>([])
+
+  useEffect(() => {
+    getTredingMovie()
+    getUpcomingMovie()
+    getTopratedMovie()
+  }, [])
+
+  const getTredingMovie = async () => {
+    if (!loading) setLoading(true)
+    const data = await fetchTrendingMovie()
+    if (data.results) {
+      setTrending(data.results)
+      setLoading(false)
+    }
+  }
+  const getUpcomingMovie = async () => {
+    if (!loading) setLoading(true)
+    const data = await fetchUpcomingMovie()
+    if (data.results) {
+      setUpcoming(data.results)
+      setLoading(false)
+    }
+  }
+  const getTopratedMovie = async () => {
+    if (!loading) setLoading(true)
+    const data = await fetchTopratedMovie()
+    if (data.results) {
+      setToprated(data.results)
+      setLoading(false)
+    }
+  }
+
 
   return (
     <View className='flex-1 bg-neutral-800'>
@@ -39,9 +76,9 @@ const Home = () => {
         <Loading />
         : <ScrollView>
           {/* Trending Movies */}
-          <Trending data={[1, 2, 3, 4]} />
-          <Upcoming title='Upcoming' data={[1, 2, 3, 4, 5, 6, 7, 8, 9]} />
-          <Upcoming title='Toprated' data={[1, 2, 3, 4, 5, 6, 7, 8, 9]} />
+          <Trending data={trending} />
+          <Upcoming title='Upcoming' data={upcoming} />
+          <Upcoming title='Toprated' data={toprated} />
 
         </ScrollView>}
     </View>

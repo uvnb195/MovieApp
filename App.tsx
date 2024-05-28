@@ -8,9 +8,12 @@ import Movie from './src/screens/Movie';
 import Person from './src/screens/Person';
 import Search from './src/screens/Search';
 
+
 export type RootStackParams = {
   Home: undefined
-  Movie: undefined
+  Movie: {
+    id: number
+  }
   Person: undefined
   Search: undefined
 }

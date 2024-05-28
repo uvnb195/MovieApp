@@ -1,19 +1,62 @@
 import { View, Text, Image, useWindowDimensions, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import ScreenWrapper from './ScreenWrapper'
 import { LinearGradient } from 'expo-linear-gradient'
 import Upcoming from '../components/Upcoming'
 import TopCast from '../components/TopCast'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { RootStackParams } from '../../App'
+import { fetchMovieCredits, fetchMovieDetail, fetchSimilarMovie, imageUrl } from '../api/axios'
+import { MovieDetailResponseType } from '../api/movieDetailType'
+import { Cast, MovieCreditsResponseType } from '../api/movieCreditsType'
+import { MovieListResponseType, Result } from '../api/movieListType'
 
-const Movie = () => {
+type Props = NativeStackScreenProps<RootStackParams, 'Movie'>
+
+const Movie = ({ route }: Props) => {
     const { width: deviceWidth, height: deviceHeight } = useWindowDimensions()
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [movieData, setMovieData] = useState<MovieDetailResponseType>()
+    const [topcast, setTopcast] = useState<Cast[]>([])
+    const [similarMovies, setSimilarMovies] = useState<Result[]>([])
+
+    const movieId = route.params.id
+
+    useEffect(() => {
+        if (!loading) setLoading(true)
+        getMovieDetail()
+        getTopcast()
+        getSimilarMovies()
+        setLoading(false)
+    }, [])
+
+    const getMovieDetail = async () => {
+        const data = await fetchMovieDetail(movieId)
+        if (data) {
+            setMovieData(data)
+        }
+    }
+
+    const getTopcast = async () => {
+        const data = await fetchMovieCredits(movieId)
+        if (data) {
+            setTopcast(data.cast)
+        }
+    }
+
+    const getSimilarMovies = async () => {
+        const data = await fetchSimilarMovie(movieId)
+        if (data) {
+            setSimilarMovies(data.results)
+        }
+    }
+
     return (
         <ScreenWrapper isLoading={loading}>
             <View className='flex-1 absolute top-0 bottom-0'>
-                <Image source={require('../../assets/dummy/avatar2.jpg')}
+                <Image source={{ uri: imageUrl(movieData?.poster_path || '', 500) }}
                     style={{
                         width: deviceWidth,
                         height: deviceHeight * 0.5,
@@ -34,19 +77,24 @@ const Movie = () => {
                     <View className='px-4 space-y-3'>
 
                         {/* Title */}
-                        <Text className='text-white text-2xl font-bold text-center'>Avatar 2: The Way of Water</Text>
+                        <Text className='text-white text-2xl font-bold text-center'>{movieData?.original_title}</Text>
                         {/* Stats */}
-                        <Text className='text-neutral-400 text-base text-center'>Released • 2024 • 240 min</Text>
-                        <Text className='text-neutral-400 text-base text-center'>Science Fiction • Adventure • Action</Text>
-
+                        <Text className='text-neutral-400 text-base text-center'>{movieData?.status} • {movieData?.release_date.split('-')[0]} • {movieData?.runtime} min</Text>
+                        {/* genres */}
+                        <View className='flex-row justify-center'>
+                            {
+                                movieData?.genres.map((value, index) => <Text key={index} className='text-neutral-400 text-base text-center'>{value.name}{index == movieData.genres.length - 1 ? '' : ' • '}</Text>)
+                            }
+                        </View>
                         {/* Overview */}
-                        <Text className='text-neutral-400 tracking-wide text-justify leading-relaxed'>
-                            Set more than a decade after the events of the first film, learn the story of the Sully family (Jake, Neytiri, and their kids), the trouble that follows them, the lengths they go to keep each other safe, the battles they fight to stay alive, and the tragedies they endure.
+                        <Text className='text-neutral-400 tracking-wide text-justify leading-relaxed mb-4'>
+                            {movieData?.overview}
                         </Text>
                     </View>
                     {/* Top rated */}
-                    <TopCast data={[1, 2, 3, 4, 5, 6, 7, 8, 9]} />
-                    <Upcoming title='Similar Movies' data={[1, 2, 3, 4, 5, 6, 7, 8, 9]} />
+                    <TopCast data={topcast} />
+                    <View className='h-2' />
+                    <Upcoming title='Similar Movies' data={similarMovies} />
 
                 </View>
             </ScrollView>

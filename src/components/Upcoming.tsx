@@ -2,10 +2,12 @@ import { View, Text, FlatList, Image, useWindowDimensions } from 'react-native'
 import React from 'react'
 import Wrapper from './Wrapper'
 import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { Result } from '../api/movieListType'
+import { imageUrl } from '../api/axios'
 
 interface Props {
     title: string,
-    data: number[]
+    data: Result[]
 }
 
 const Upcoming = ({ title, data }: Props) => {
@@ -15,7 +17,7 @@ const Upcoming = ({ title, data }: Props) => {
             <View>
                 <FlatList
                     data={data}
-                    renderItem={({ item }) => <MovieCard width={width * 0.3} height={width * 0.5} title='Avatar 2: The last bended' />}
+                    renderItem={({ item }) => <MovieCard width={width * 0.3} height={width * 0.5} title={item.title} imageUrl={imageUrl(item.poster_path, 185)} />}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                 />
@@ -24,19 +26,20 @@ const Upcoming = ({ title, data }: Props) => {
     )
 }
 
-export const MovieCard = ({ width, height, title, numberOfCharacters }:
+export const MovieCard = ({ width, height, title, imageUrl, numberOfCharacters }:
     {
         width: number,
         height: number,
         title: string,
+        imageUrl: string,
         numberOfCharacters?: number
     }) => {
     return (
         <TouchableWithoutFeedback>
 
-            <View className='p-2'>
+            <View className='p-2 items-center'>
                 <Image
-                    source={require('../../assets/dummy/avatar2.jpg')}
+                    source={{ uri: imageUrl }}
                     className='rounded-2xl'
                     style={{
                         width: width,

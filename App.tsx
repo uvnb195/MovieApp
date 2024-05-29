@@ -14,7 +14,9 @@ export type RootStackParams = {
   Movie: {
     id: number
   }
-  Person: undefined
+  Person: {
+    id: number
+  }
   Search: undefined
 }
 

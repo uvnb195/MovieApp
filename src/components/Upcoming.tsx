@@ -4,6 +4,9 @@ import Wrapper from './Wrapper'
 import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { Result } from '../api/movieListType'
 import { imageUrl } from '../api/axios'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootStackParams } from '../../App'
 
 interface Props {
     title: string,
@@ -12,12 +15,20 @@ interface Props {
 
 const Upcoming = ({ title, data }: Props) => {
     const { width } = useWindowDimensions()
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>()
+
     return (
         <Wrapper title={title} showSeeAll>
             <View>
                 <FlatList
                     data={data}
-                    renderItem={({ item }) => <MovieCard width={width * 0.3} height={width * 0.5} title={item.title} imageUrl={imageUrl(item.poster_path, 185)} />}
+                    renderItem={({ item }) =>
+                        <MovieCard
+                            width={width * 0.3}
+                            height={width * 0.5}
+                            title={item.title}
+                            imageUrl={imageUrl(item.poster_path, 185)}
+                            onClick={() => { navigation.push('Movie', { id: item.id }) }} />}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                 />
@@ -26,16 +37,17 @@ const Upcoming = ({ title, data }: Props) => {
     )
 }
 
-export const MovieCard = ({ width, height, title, imageUrl, numberOfCharacters }:
+export const MovieCard = ({ width, height, title, imageUrl, numberOfCharacters, onClick }:
     {
         width: number,
         height: number,
         title: string,
         imageUrl: string,
-        numberOfCharacters?: number
+        numberOfCharacters?: number,
+        onClick: () => void
     }) => {
     return (
-        <TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={onClick}>
 
             <View className='p-2 items-center'>
                 <Image

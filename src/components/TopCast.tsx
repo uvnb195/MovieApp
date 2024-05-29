@@ -4,6 +4,9 @@ import Wrapper from './Wrapper'
 import { FlatList, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { Cast } from '../api/movieCreditsType'
 import { imageUrl } from '../api/axios'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RootStackParams } from '../../App'
 
 interface Props {
     data: Cast[]
@@ -11,11 +14,16 @@ interface Props {
 
 const TopCast = ({ data }: Props) => {
     const { width } = useWindowDimensions()
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>()
     return (
         <Wrapper title='Top Cast'>
             <FlatList
                 data={data}
-                renderItem={({ item }) => <ActorCard width={width * 0.3} height={width * 0.3} data={item} />}
+                renderItem={({ item }) => <ActorCard
+                    width={width * 0.3}
+                    height={width * 0.3}
+                    data={item}
+                    onClick={() => navigation.push('Person', { id: item.id })} />}
                 horizontal
                 showsHorizontalScrollIndicator={false}
             />
@@ -26,14 +34,15 @@ const TopCast = ({ data }: Props) => {
 interface ActorCardProps {
     width: number,
     height: number,
-    data: Cast
+    data: Cast,
+    onClick: () => void
 }
 
-const ActorCard = ({ width, height, data }: ActorCardProps) => {
+const ActorCard = ({ width, height, data, onClick }: ActorCardProps) => {
     const name = data.name
     const characterName = data.character
     return (
-        <TouchableWithoutFeedback className='m-2 items-center'>
+        <TouchableWithoutFeedback className='m-2 items-center' onPress={onClick}>
             <View className='rounded-full border border-white overflow-hidden w-20 h-20' >
                 <Image
                     source={{ uri: imageUrl(data.profile_path || "", 185) }}

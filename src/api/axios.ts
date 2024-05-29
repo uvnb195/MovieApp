@@ -3,6 +3,8 @@ import { apiKey } from "../constants";
 import { MovieListResponseType } from "./movieListType";
 import { MovieDetailResponseType } from "./movieDetailType";
 import { MovieCreditsResponseType } from "./movieCreditsType";
+import { PersonResponseType } from "./personDetailType";
+import { PersonCreditsResponseType } from "./personCreditsType";
 
 const baseURL = 'https://api.themoviedb.org/3'
 
@@ -19,6 +21,8 @@ const topratedMovieEndpoint = `/movie/top_rated?api_key=${apiKey}`
 const movieDetailEndpoint = (id: number) => `/movie/${id}?api_key=${apiKey}`
 const movieCreditsEndpoint = (id: number) => `/movie/${id}/credits?api_key=${apiKey}`
 const similarMovieEndpoint = (id: number) => `/movie/${id}/similar?api_key=${apiKey}`
+const personDetailEndpoint = (id: number) => `/person/${id}?api_key=${apiKey}`
+const personCreditsEndpoint = (id: number) => `/person/${id}/movie_credits?api_key=${apiKey}`
 
 // image url
 
@@ -54,4 +58,14 @@ export const fetchMovieCredits = async (id: number) => {
 export const fetchSimilarMovie = async (id: number) => {
     const response = await tmdbInstance.get(similarMovieEndpoint(id))
     return response.data as MovieListResponseType
+}
+
+export const fetchPersonDetail = async (id: number) => {
+    const response = await tmdbInstance.get(personDetailEndpoint(id))
+    return response.data as PersonResponseType
+}
+
+export const fetchPersonCredits = async (id: number) => {
+    const response = await tmdbInstance.get(personCreditsEndpoint(id))
+    return response.data as PersonCreditsResponseType
 }

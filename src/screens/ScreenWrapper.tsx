@@ -24,14 +24,20 @@ const ScreenWrapper = ({ className, children, isLoading }: Props) => {
 
     return (
         <View className='flex-1 bg-neutral-800'>
+            <LinearGradient
+                colors={['rgba(38,38,38,0.5)', 'rgba(38,38,38,0)']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 0, y: 1 }}
+                className='absolute z-10 w-full h-10' />
             <SafeAreaView className='absolute z-20 w-full p-2'>
                 <StatusBar style='light' />
 
                 {/* back button and bookmarks */}
                 <View className='flex-row justify-between'>
                     <TouchableOpacity onPress={() => navigation.goBack()}
+                        onLongPress={() => navigation.popToTop()}
                         className='rounded-lg p-1'
-                        style={{ backgroundColor: theme.background }}>
+                        style={{ backgroundColor: theme.background, elevation: 10 }}>
                         <ChevronLeftIcon size={28} color={'white'} />
                     </TouchableOpacity>
 

@@ -1,26 +1,57 @@
-import { View, Text, TextInput, TouchableOpacity, useWindowDimensions, Image } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, TextInput, TouchableOpacity, useWindowDimensions, Image, FlatList } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
 import ScreenWrapper from './ScreenWrapper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
-import { ScrollView } from 'react-native-gesture-handler'
-import { XMarkIcon } from 'react-native-heroicons/outline'
+import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { ChevronDownIcon, ChevronLeftIcon, XMarkIcon } from 'react-native-heroicons/outline'
 import { useNavigation } from '@react-navigation/native'
 import { RootStackParams } from '../../App'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { MovieCard } from '../components/Upcoming'
 import Loading from '../components/Loading'
+import { useDebounce } from '../constants/hooks'
+import { fetchSearchMovie, fetchSearchPerson, imageUrl } from '../api/axios'
+import { Result as Movie } from '../api/movieListType'
+import { Result as Person } from '../api/personListType'
+import { theme } from '../theme'
 
 const Search = () => {
     const { width, height } = useWindowDimensions()
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>()
 
     const [input, setInput] = useState('')
-    const [result, setResult] = useState(0)
+    const searchDebounce = useDebounce(input)
+    const [movies, setMovies] = useState<Movie[]>([])
+    const [persons, setPersons] = useState<Person[]>([])
     const [loading, setLoading] = useState(false)
+    const [showMovies, toggleMovies] = useState(false)
+    const [showPersons, togglePersons] = useState(false)
+
+    const handleInput = (value: string) => {
+        setInput(value)
+    }
+
+    useEffect(() => {
+        if (searchDebounce.length > 2) {
+            setLoading(true)
+            getSearchResults(searchDebounce)
+            setTimeout(() => setLoading(false), 1000)
+        }
+    }, [searchDebounce])
+
+    const getSearchResults = async (value: string) => {
+        const data = await fetchSearchMovie(value)
+        if (data.total_results > 0) {
+            setMovies(data.results)
+        }
+    }
 
     const handleClear = () => {
-        if (input.length > 0) setInput('')
+        if (input.length > 0) {
+            setInput('')
+            setMovies([])
+        }
         else navigation.goBack()
     }
     return (
@@ -31,11 +62,11 @@ const Search = () => {
                 <View className='rounded-full bg-neutral-700 p-1 justify-between flex-row items-center mx-2 my-1'>
                     <TextInput
                         numberOfLines={1}
-                        placeholder='Search...'
+                        placeholder='Search Movie or Person...'
                         placeholderTextColor={'darkgray'}
                         className='text-base text-white mx-4 h-10 flex-1'
                         value={input}
-                        onChangeText={(value) => setInput(value)}
+                        onChangeText={handleInput}
                     />
                     <TouchableOpacity className='border-2 border-neutral-500 rounded-full h-10 w-10 justify-center items-center'
                         onPress={handleClear}>
@@ -44,35 +75,79 @@ const Search = () => {
                 </View>
             </SafeAreaView>
             {loading && <Loading />}
-            {!loading && (result > 0
-                ? <ScrollView>
-                    <View className='mx-2 my-2'>
-                        {/* total result */}
-                        <Text className='text-neutral-400 mx-2'>Result ({result})</Text>
-                        <View className='flex-row flex-wrap justify-evenly'>
-                            <MovieCard
-                                width={width * 0.4}
-                                height={width * 0.5}
-                                title={'Avatar 2: The way of Water'}
-                                numberOfCharacters={21} />
-                            <MovieCard
-                                width={width * 0.4}
-                                height={width * 0.5}
-                                title={'Avatar 2: The way of Water'}
-                                numberOfCharacters={21} />
-                            <MovieCard
-                                width={width * 0.4}
-                                height={width * 0.5}
-                                title={'Avatar 2: The way of Water'}
-                                numberOfCharacters={21} />
-                            <MovieCard
-                                width={width * 0.4}
-                                height={width * 0.5}
-                                title={'Avatar 2: The way of Water'}
-                                numberOfCharacters={21} />
-                        </View>
+            {!loading && (movies.length > 0
+                ?
+                <View className='flex-1 px-0 pb-6 overflow-visible' >
+                    {/* movies result */}
+                    <View className='flex-row justify-between items-center pr-4 border-b border-neutral-500'>
+                        <Text className='text-neutral-400 mx-2 my-1'>Movies ({movies.length})</Text>
+                        <TouchableOpacity
+                            onPress={() => toggleMovies(!showMovies)}
+                            className='bg-neutral-700 rounded items-center justify-center p-[1px]'>
+                            {showMovies ?
+                                <ChevronLeftIcon color={theme.background} size={20} />
+                                : <ChevronDownIcon color={theme.background} size={20} />
+                            }
+                        </TouchableOpacity>
                     </View>
-                </ScrollView>
+                    {
+                        showMovies && <View className='flex-row justify-center flex-auto'>
+                            <FlatList
+                                data={movies}
+                                renderItem={({ item }) =>
+                                    <MovieCard
+                                        key={item.id}
+                                        width={width * 0.4}
+                                        height={width * 0.5}
+                                        title={item.title}
+                                        numberOfCharacters={21}
+                                        imageUrl={imageUrl(item.poster_path, 342)}
+                                        onClick={function (): void {
+                                            throw new Error('Function not implemented.')
+                                        }} />}
+                                numColumns={2}
+                                contentContainerStyle={{
+                                    alignItems: 'center'
+                                }}
+                            />
+                        </View>
+                    }
+                    {/* persons result */}
+                    <View className='flex-row justify-between items-center pr-4 border-b border-neutral-500'>
+                        <Text className='text-neutral-400 mx-2 my-1'>Persons ({movies.length})</Text>
+                        <TouchableOpacity
+                            onPress={() => togglePersons(!showPersons)}
+                            className='bg-neutral-700 rounded items-center justify-center p-[1px]'>
+                            {showPersons ?
+                                <ChevronLeftIcon color={theme.background} size={20} />
+                                : <ChevronDownIcon color={theme.background} size={20} />
+                            }
+                        </TouchableOpacity>
+                    </View>
+                    {
+                        showPersons && <View className='flex-row justify-center flex-auto'>
+                            <FlatList
+                                data={movies}
+                                renderItem={({ item }) =>
+                                    <MovieCard
+                                        key={item.id}
+                                        width={width * 0.4}
+                                        height={width * 0.5}
+                                        title={item.title}
+                                        numberOfCharacters={21}
+                                        imageUrl={imageUrl(item.poster_path, 342)}
+                                        onClick={function (): void {
+                                            throw new Error('Function not implemented.')
+                                        }} />}
+                                numColumns={2}
+                                contentContainerStyle={{
+                                    alignItems: 'center'
+                                }}
+                            />
+                        </View>
+                    }
+
+                </View>
                 : <Image
                     source={require('../../assets/dummy/search-bg.webp')}
                     style={{

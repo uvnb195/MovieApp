@@ -5,6 +5,7 @@ import { MovieDetailResponseType } from "./movieDetailType";
 import { MovieCreditsResponseType } from "./movieCreditsType";
 import { PersonResponseType } from "./personDetailType";
 import { PersonCreditsResponseType } from "./personCreditsType";
+import { PersonListResponseType } from "./personListType";
 
 const baseURL = 'https://api.themoviedb.org/3'
 
@@ -13,6 +14,8 @@ const tmdbInstance = axios.create({
     baseURL: baseURL,
     timeout: 2000,
 })
+
+type SearchType = 'movie' | 'person'
 
 // endpoint 
 const trendingMovieEndpoint = `/trending/movie/day?api_key=${apiKey}`
@@ -23,6 +26,7 @@ const movieCreditsEndpoint = (id: number) => `/movie/${id}/credits?api_key=${api
 const similarMovieEndpoint = (id: number) => `/movie/${id}/similar?api_key=${apiKey}`
 const personDetailEndpoint = (id: number) => `/person/${id}?api_key=${apiKey}`
 const personCreditsEndpoint = (id: number) => `/person/${id}/movie_credits?api_key=${apiKey}`
+const searchEndpoint = (searchType: SearchType = 'movie') => `/search/${searchType}?api_key=${apiKey}`
 
 // image url
 
@@ -68,4 +72,26 @@ export const fetchPersonDetail = async (id: number) => {
 export const fetchPersonCredits = async (id: number) => {
     const response = await tmdbInstance.get(personCreditsEndpoint(id))
     return response.data as PersonCreditsResponseType
+}
+
+export const fetchSearchMovie = async (query: string) => {
+    const config = {
+        method: 'GET',
+        url: searchEndpoint('movie'),
+        params: { query: query }
+
+    }
+    const response = await tmdbInstance.request(config)
+    return response.data as MovieListResponseType
+}
+
+export const fetchSearchPerson = async (query: string) => {
+    const config = {
+        method: 'GET',
+        url: searchEndpoint('person'),
+        params: { query: query }
+
+    }
+    const response = await tmdbInstance.request(config)
+    return response.data as PersonListResponseType
 }

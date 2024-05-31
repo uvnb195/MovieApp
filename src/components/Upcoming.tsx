@@ -48,7 +48,6 @@ export const MovieCard = ({ width, height, title, imageUrl, numberOfCharacters, 
     }) => {
     return (
         <TouchableWithoutFeedback onPress={onClick}>
-
             <View className='p-2 items-center'>
                 <Image
                     source={{ uri: imageUrl }}

@@ -26,30 +26,25 @@ const Home = () => {
     getTredingMovie()
     getUpcomingMovie()
     getTopratedMovie()
+    setTimeout(() => setLoading(false), 500)
   }, [])
 
   const getTredingMovie = async () => {
-    if (!loading) setLoading(true)
     const data = await fetchTrendingMovie()
     if (data.results) {
       setTrending(data.results)
-      setLoading(false)
     }
   }
   const getUpcomingMovie = async () => {
-    if (!loading) setLoading(true)
     const data = await fetchUpcomingMovie()
     if (data.results) {
       setUpcoming(data.results)
-      setLoading(false)
     }
   }
   const getTopratedMovie = async () => {
-    if (!loading) setLoading(true)
     const data = await fetchTopratedMovie()
     if (data.results) {
       setToprated(data.results)
-      setLoading(false)
     }
   }
 

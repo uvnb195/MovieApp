@@ -25,11 +25,10 @@ const Movie = ({ route }: Props) => {
     const movieId = route.params.id
 
     useEffect(() => {
-        if (!loading) setLoading(true)
         getMovieDetail()
         getTopcast()
         getSimilarMovies()
-        setLoading(false)
+        setTimeout(() => setLoading(false), 500)
     }, [])
 
     const getMovieDetail = async () => {

@@ -23,7 +23,7 @@ const Person = ({ route }: Props) => {
     useEffect(() => {
         getPersonDetail()
         getPersonCredits()
-        setLoading(false)
+        setTimeout(() => setLoading(false), 500)
     }, [])
 
     const getPersonDetail = async () => {
@@ -35,7 +35,6 @@ const Person = ({ route }: Props) => {
 
     const getPersonCredits = async () => {
         const data = await fetchPersonCredits(personId)
-        console.log('=========', data)
         if (data) {
             setPersonCredits(data.cast)
         }

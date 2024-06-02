@@ -15,6 +15,7 @@ import { fetchSearchMovie, fetchSearchPerson, imageUrl } from '../api/axios'
 import { Result as Movie } from '../api/movieListType'
 import { Result as Person } from '../api/personListType'
 import { theme } from '../theme'
+import Personcard from '../components/Personcard'
 
 const Search = () => {
     const { width, height } = useWindowDimensions()
@@ -25,7 +26,7 @@ const Search = () => {
     const [movies, setMovies] = useState<Movie[]>([])
     const [persons, setPersons] = useState<Person[]>([])
     const [loading, setLoading] = useState(false)
-    const [showMovies, toggleMovies] = useState(false)
+    const [showMovies, toggleMovies] = useState(true)
     const [showPersons, togglePersons] = useState(false)
 
     const handleInput = (value: string) => {
@@ -41,9 +42,13 @@ const Search = () => {
     }, [searchDebounce])
 
     const getSearchResults = async (value: string) => {
-        const data = await fetchSearchMovie(value)
-        if (data.total_results > 0) {
-            setMovies(data.results)
+        const moviesData = await fetchSearchMovie(value)
+        const personsData = await fetchSearchPerson(value)
+        if (moviesData.total_results > 0) {
+            setMovies(moviesData.results)
+        }
+        if (personsData.total_results > 0) {
+            setPersons(personsData.results)
         }
     }
 
@@ -127,21 +132,22 @@ const Search = () => {
                     {
                         showPersons && <View className='flex-row justify-center flex-auto'>
                             <FlatList
-                                data={movies}
+                                data={persons}
                                 renderItem={({ item }) =>
-                                    <MovieCard
+                                    <Personcard
                                         key={item.id}
                                         width={width * 0.4}
                                         height={width * 0.5}
-                                        title={item.title}
+                                        title={item.name}
                                         numberOfCharacters={21}
-                                        imageUrl={imageUrl(item.poster_path, 342)}
+                                        imageUrl={imageUrl(item.profile_path || '', 342)}
                                         onClick={function (): void {
                                             throw new Error('Function not implemented.')
                                         }} />}
                                 numColumns={2}
                                 contentContainerStyle={{
-                                    alignItems: 'center'
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
                                 }}
                             />
                         </View>

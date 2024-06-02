@@ -9,6 +9,7 @@ import { RootStackParams } from '../../App'
 import { fetchPersonCredits, fetchPersonDetail, imageUrl } from '../api/axios'
 import { PersonResponseType } from '../api/personDetailType'
 import { Result } from '../api/movieListType'
+import { imageError } from '../constants'
 
 type Props = NativeStackScreenProps<RootStackParams, 'Person'>
 
@@ -19,6 +20,7 @@ const Person = ({ route }: Props) => {
     const [loading, setLoading] = useState(true)
     const [data, setData] = useState<PersonResponseType>()
     const [personCredits, setPersonCredits] = useState<Result[]>([])
+    const [isImgValid, setIsImgValid] = useState(true)
 
     useEffect(() => {
         getPersonDetail()
@@ -55,12 +57,14 @@ const Person = ({ route }: Props) => {
                         elevation: 50
                     }}>
                     <Image
-                        source={{ uri: imageUrl(data?.profile_path || "", 500) }}
+                        onError={() => setIsImgValid(false)}
+                        source={isImgValid ? { uri: imageUrl(data?.profile_path || "", 500) } : imageError}
                         style={{
                             width: width * 0.75,
-                            height: height * 0.5
+                            height: height * 0.5,
+                            resizeMode: isImgValid ? 'cover' : 'contain'
                         }}
-                        className='self-center'
+                        className={'self-center ' + (!isImgValid && 'bg-neutral-600')}
                     />
                 </View>
                 {/* person info */}
@@ -95,7 +99,7 @@ const Person = ({ route }: Props) => {
                     {/* Biography */}
                     <Wrapper title='Biography'>
                         <Text className='text-justify leading-normal text-neutral-400 text-base'>
-                            {data?.biography}
+                            {(data && data.biography && data?.biography?.length > 0) ? data?.biography : 'There is no biography...'}
                         </Text>
                     </Wrapper>
 

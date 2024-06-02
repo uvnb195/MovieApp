@@ -1,5 +1,5 @@
 import { View, Text, Image, useWindowDimensions } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import Wrapper from './Wrapper'
 import { FlatList, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { Cast } from '../api/movieCreditsType'
@@ -7,6 +7,7 @@ import { imageUrl } from '../api/axios'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParams } from '../../App'
+import { imageError } from '../constants'
 
 interface Props {
     data: Cast[]
@@ -41,12 +42,15 @@ interface ActorCardProps {
 const ActorCard = ({ width, height, data, onClick }: ActorCardProps) => {
     const name = data.name
     const characterName = data.character
+    const [isImgValid, setIsImgValid] = useState(true)
+
     return (
         <TouchableWithoutFeedback className='m-2 items-center' onPress={onClick}>
             <View className='rounded-full border border-white overflow-hidden w-20 h-20' >
                 <Image
-                    source={{ uri: imageUrl(data.profile_path || "", 185) }}
-                    className='w-20 h-24'
+                    onError={() => setIsImgValid(false)}
+                    source={isImgValid ? { uri: imageUrl(data.profile_path || "", 185) } : imageError}
+                    className={'w-20 ' + (isImgValid ? 'h-24' : 'h-20 bg-neutral-600')}
                 />
             </View>
             <Text className='text-white text-center mt-1'>{name.length > 14 ? name.slice(0, 14) + '...' : name}</Text>

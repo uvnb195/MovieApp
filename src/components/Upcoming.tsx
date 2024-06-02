@@ -1,5 +1,5 @@
 import { View, Text, FlatList, Image, useWindowDimensions } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import Wrapper from './Wrapper'
 import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { Result } from '../api/movieListType'
@@ -7,6 +7,7 @@ import { imageUrl } from '../api/axios'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParams } from '../../App'
+import { imageError } from '../constants'
 
 interface Props {
     title: string,
@@ -46,15 +47,19 @@ export const MovieCard = ({ width, height, title, imageUrl, numberOfCharacters, 
         numberOfCharacters?: number,
         onClick: () => void
     }) => {
+    const [isImgValid, setIsImgValid] = useState(true)
+
     return (
         <TouchableWithoutFeedback onPress={onClick}>
             <View className='p-2 items-center'>
                 <Image
-                    source={{ uri: imageUrl }}
-                    className='rounded-2xl'
+                    onError={() => setIsImgValid(false)}
+                    source={isImgValid ? { uri: imageUrl } : imageError}
+                    className={'rounded-2xl ' + (!isImgValid && 'bg-neutral-700')}
                     style={{
                         width: width,
-                        height: height
+                        height: height,
+                        resizeMode: isImgValid ? 'cover' : 'contain'
                     }}
                 />
                 <Text className='text-white'>{title && (title.length > (numberOfCharacters || 14) ? title.slice(0, numberOfCharacters || 14) + '...' : title)}</Text>

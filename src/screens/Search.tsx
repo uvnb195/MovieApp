@@ -26,7 +26,7 @@ const Search = () => {
     const [movies, setMovies] = useState<Movie[]>([])
     const [persons, setPersons] = useState<Person[]>([])
     const [loading, setLoading] = useState(false)
-    const [showMovies, toggleMovies] = useState(true)
+    const [showMovies, toggleMovies] = useState(false)
     const [showPersons, togglePersons] = useState(false)
 
     const handleInput = (value: string) => {

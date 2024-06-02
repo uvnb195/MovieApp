@@ -60,7 +60,7 @@ const Person = ({ route }: Props) => {
                         onError={() => setIsImgValid(false)}
                         source={isImgValid ? { uri: imageUrl(data?.profile_path || "", 500) } : imageError}
                         style={{
-                            width: width * 0.75,
+                            width: width * 0.8,
                             height: height * 0.5,
                             resizeMode: isImgValid ? 'cover' : 'contain'
                         }}
